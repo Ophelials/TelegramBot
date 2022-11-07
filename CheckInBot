@@ -1,0 +1,90 @@
+from aiogram import Bot, Dispatcher, executor, types
+
+bot = Bot(token='5626641462:AAH9Y-08zUQe_N8tZzXD0K1pFnlHm858hMA')
+dp = Dispatcher(bot)
+
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    student = types.KeyboardButton('Я - студент 🧑‍💻')
+    admin = types.KeyboardButton('Я - Бог. Я - Царь. Я - ADM 👑')
+    markup.add(student)
+    markup.add(admin)
+    await message.reply('Привет, {}! 👋 \n'
+                    'Я организационный бот для мероприятий в Школе 21!'
+           'Расскажи мне кто ты, и я помогу тебе.'.format(message.from_user.first_name),
+           reply_markup=markup, reply=False)
+
+@dp.message_handler(commands=['help'])
+async def helper(message: types.Message):
+    await message.reply("▶️ Для начала работы с ботом или его перезапуска введите /start\n"
+                        "⏪ Для возврата в главное меню введите /menu", reply=False)
+
+@dp.message_handler(commands=['menu'])
+async def menu(message: types.Message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = types.KeyboardButton('Я - студент 🧑‍💻')
+    btn2 = types.KeyboardButton('Я - Бог. Я - Царь. Я - ADM 👑')
+    markup.add(btn1)
+    markup.add(btn2)
+    await message.reply('Выбери свою роль: ',
+                        reply_markup=markup, reply=False)
+
+
+@dp.message_handler(commands=['geocheck'])
+async def checkingeo(message: types.Message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    geo = types.KeyboardButton('Отправить геолокацию', request_location=True)
+    markup.add(geo)
+    await message.reply('Для подтверждения присутствия на мероприятии - отправьте вашу геопозицию 📍',
+                        reply_markup=markup, reply=False)
+
+@dp.message_handler(commands=['promocheck'])
+async def checkinpromo(message: types.Message):
+    await message.reply('Введи промокод:\n', reply=False) #67890
+
+
+@dp.message_handler(content_types=["location"])
+async def location(message):
+    if message.location is not None:
+        print("latitude: %s; longitude: %s" % (message.location.latitude, message.location.longitude))
+        if abs(message.location.latitude - 55.79718732489479) > 0.03 or \
+            abs(message.location.longitude - 37.57926199052905) > 0.03:
+            await bot.send_message(message.from_user.id, "❌ Присутствие не подтверждено")
+        else:
+            await bot.send_message(message.from_user.id, "✅ Присутствие подтверждено!")
+
+@dp.message_handler(content_types=['text'])
+async def func(message: types.Message):
+    if message.text == 'Я - студент 🧑‍💻':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        btn1 = types.KeyboardButton('👀 Посмотреть информацию о предстоящих мероприятиях')
+        btn2 = types.KeyboardButton('👌 Подтвердить присутствие на мероприятии')
+        markup.add(btn1)
+        markup.add(btn2)
+        await message.reply('Я помогу тебе сделать досуг в Школе 21 интересным!\n'
+                      'Что бы ты хотел сделать?',
+             reply_markup=markup, reply=False)
+    elif message.text == "👀 Посмотреть информацию о предстоящих мероприятиях":
+        await message.reply("Пока мероприятий нет.", reply=False)
+    elif message.text == "👌 Подтвердить присутствие на мероприятии":
+        await message.reply('Для подтверждения по геолокации введите /geocheck\n'
+                            'Для подтверждения участия по промокоду введите /promocheck',
+                            reply=False)
+    elif message.text == 'Я - Бог. Я - Царь. Я - ADM 👑':
+        await message.reply('Давай ка убедимся. Введи пароль:\n', reply=False) #12345
+    elif message.text == '12345':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        adm1 = types.KeyboardButton('👀 Посмотреть информацию о предстоящих мероприятиях')
+        adm2 = types.KeyboardButton('Просмотреть записи на мероприятия')
+        markup.add(adm1)
+        markup.add(adm2)
+        await message.reply('Чего желаете, милорд?',
+             reply_markup=markup, reply=False)
+    elif message.text == '67890':
+        await message.reply('✅ Присутствие подтверждено!', reply=False)
+    else:
+        await message.reply('Введена неверная команда или код. Попробуйте снова!🤷', reply=False)
+
+if __name__ == '__main__':
+  executor.start_polling(dp)
