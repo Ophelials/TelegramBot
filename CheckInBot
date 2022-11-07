@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, executor, types
 
-bot = Bot(token='5626641462:AAH9Y-08zUQe_N8tZzXD0K1pFnlHm858hMA')
+bot = Bot(token='#########')
 dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['start'])
